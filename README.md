@@ -10,7 +10,7 @@ friends will learn some nice tricks, too!
 
 Currently all A4 only, patches welcome:
 
-* [Control.Lens](lens.pdf)
+* [Control.Lens](raw/lens.pdf)
 
 ## Currently planned cheat sheets:
 
