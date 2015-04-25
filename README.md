@@ -1,12 +1,12 @@
-# The most important library documentation on your desk!
+# The most important library documentation, on your desk!
 
-What's the idea? Looking up documentation can be jarring when you just
-want to remember a type signature or how to glue something together.
+Looking up documentation can be jarring when you just want to remember a type
+signature or how to glue something together.
 
 Why not have the your most commonly looked up things in one place? Perhaps your
 friends will learn some nice tricks, too!
 
-## The pdfs!
+## The PDFs:
 
 Currently all A4 only, patches welcome:
 
@@ -21,11 +21,13 @@ Currently all A4 only, patches welcome:
 
 ## Contributing
 
-If you have something that you're constantly looking up and would like to
-permanately sit on your desk, either open an issue or a PR with your addition.
+In this early stage, snippets of documentation that you are always looking up
+would be really helpful.
 
+Please feel free to open an issue with the documentation, and license of said
+docs (BSD-3, please).
 
 ## License
 
-BSD-3, with attribution to the respective authors of whom whe have stolen
+BSD-3, with attribution to the respective authors of whom we have stolen
 bits of their documentation.
