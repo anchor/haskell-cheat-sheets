@@ -1,0 +1,162 @@
+\input{common/prelude.tex}
+
+% Spacing for logo
+\addtolength{\wpXoffset}{5.5cm}
+\addtolength{\wpYoffset}{13.1cm}
+
+\begin{document}
+
+\CenterWallPaper{0.3}{common/anchor-logo.png}
+
+
+{\huge \bfseries Control.Lens cheat sheet \\[0.2cm]}
+
+\HRule%
+
+\begin{multicols}{2}
+
+\begin{box1}
+\subsection *{Getting with Getters}
+
+Any function $(s \to a)$ can be flipped into continuation passing style, $(a \to r)
+\to s \to r$ and decorated with \textbf{Const} to obtain:
+
+\begin{minted}{haskell}
+type Getting r s a =
+  (a -> Const r a) -> s -> Const r s
+\end{minted}
+A \textbf{Getter} describes how to retrieve a single value in a way that can be composed
+with other \textbf{LensLike} constructions.
+
+When you see this in a type signature it indicates that you can pass the
+function a \textbf{Lens}, \textbf{Getter}, \textbf{Traversal}, \textbf{Fold},
+\textbf{Prism}, \textbf{Iso}, or one of the indexed
+variants, and it will just ``do the right thing''.
+\end{box1}
+
+\begin{box2}
+\subsection *{Safe head}
+Perform a safe head of a \textbf{Fold} or \textbf{Traversal} or retrieve
+\textbf{Just} the result from a \textbf{Getter} or \textbf{Lens}.
+
+$ (\ \hat{}\,?) \equiv flip\;preview $
+
+\begin{minted}{haskell}
+(^?) :: s -> Getting (First a) s a -> Maybe a
+
+>>> Right 4 ^?_Left
+Nothing
+>>> "world" ^? ix 3
+Just `l'
+\end{minted}
+\end{box2}
+
+\begin{box1}
+
+\subsection *{Viewing lenses}
+
+View the value pointed to by a \textbf{Getter} or \textbf{Lens} or the result
+of folding over all the results of a \textbf{Fold} or \textbf{Traversal} that
+points at a monoidal values.
+
+This is the same operation as \textbf{view} with the arguments flipped.
+
+\begin{minted}{haskell}
+(^.) :: s -> Getting a s a -> a 
+
+>>> (0, -5)^._2.to abs
+5
+>>> ["a", "b", "c"] ^. traversed
+"abc"
+\end{minted}
+\end{box1}
+
+\begin{box2}
+\subsection*{Using MonadState}
+
+Use the target of a \textbf{Lens}, \textbf{Iso}, or \textbf{Getter} in the
+current state, or use a summary of a \textbf{Fold} or \textbf{Traversal} that
+points to a monoidal value.
+
+\begin{minted}{haskell}
+use :: MonadState s m => Getting a s a -> m a
+
+>>> evalState (use _1) (1,2)
+1
+>>> evalState (uses _1 length) ("hello","")
+5
+\end{minted}
+\end{box2}
+
+\columnbreak
+
+\begin{box1}
+\subsection *{Folding Foldables}
+\begin{minted}{haskell}
+type Fold s a =
+  forall m. Monoid m => Getting m s a
+\end{minted}
+A \textbf{Fold s a} is a generalization of something \textbf{Foldable}. It
+allows you to extract multiple results from a container. Every \textbf{Getter}
+is a valid \textbf{Fold} that simply doesn't use the Monoid it is passed.
+
+If there exists a \textbf{foo} method that expects a
+\textbf{Foldable (f a)}, then there should be a \textbf{fooOf} method that
+takes a \textbf{Fold s a} and a value of type \textbf{s}.
+
+\end{box1}
+
+\begin{box2}
+\subsection *{Extracting lists from Folds}
+
+Extract a list of the targets of a \textbf{Fold}, an infix version of
+\textbf{toListOf}.
+
+$ toList\;xs \equiv xs\;\hat{}.. folded $
+
+\begin{minted}{haskell}
+(^..) :: s -> Getting (Endo [a]) s a -> [a] 
+
+>>> [[1,2],[3]]^..traverse.traverse
+[1,2,3]
+>>> (1,2)^..both
+[1,2]
+\end{minted}
+\end{box2}
+
+\begin{box1}
+\subsection *{Checking for matches}
+
+Check to see if this Fold or Traversal matches 1 or more entries. For the
+opposite, use \textbf{hasn't}.
+
+\begin{minted}{haskell}
+has :: Getting Any s a -> s -> Bool
+
+>>> has (element 0) []
+False
+>>> has _Right (Left 12)
+False
+>>> hasn't _Right (Left 12)
+True
+\end{minted}
+\end{box1}
+
+
+\begin{box2}
+\subsection*{Indexed Getters}
+For most operations, there is an indexed variant which will work as expected if
+the underlying target supports a notion of \textbf{Indexing}.
+
+\begin{minted}{haskell}
+>>> ["ab", "c"]^@..itraversed<.>itraversed  
+[((0,0),'a'),((0,1),'b'),((1,0),'c')]
+>>> "hello" ^@..itraversed.indices even
+[(0,'h'),(2,'l'),(4,'o')]
+
+>>> ifind (\i k -> i > k) [1,2,2,2]
+Just (3,2)
+\end{minted}
+\end{box2}
+\end{multicols}
+\end{document}
