@@ -9,7 +9,7 @@
 \CenterWallPaper{0.3}{common/anchor-logo.png}
 
 
-{\huge \bfseries Control.Lens cheat sheet \\[0.2cm]}
+{\huge \bfseries Control.Lens (viewing) \\[0.2cm]}
 
 \HRule%
 
@@ -159,4 +159,126 @@ Just (3,2)
 \end{minted}
 \end{box2}
 \end{multicols}
+\newpage
+
+{\huge \bfseries Control.Lens (setting) \\[0.2cm]}
+
+\HRule%
+
+\begin{multicols}{2}
+
+\begin{box1}
+\subsection *{Modifying records with Setters}
+A \textbf{Setter s t a b} is a generalization of fmap from \textbf{Functor}. It
+allows you to map into a structure and change out the contents, but it isn't
+strong enough to allow you to enumerate those contents. Starting with
+$fmap :: Functor f \Rightarrow (a \to b) \to f a \to f b$ we monomorphize the type
+to obtain $(a \to b) \to s \to t$ and then decorate it with Identity to obtain:
+
+\begin{minted}{haskell}
+type Setter s t a b =
+  (a -> Identity b) -> s -> Identity t
+\end{minted}
+
+Every Traversal is a valid Setter, since Identity is Applicative.
+
+\end{box1}
+
+\begin{box2}
+\subsection *{Modifying with a function}
+\begin{minted}{haskell}
+(%~) :: Profunctor p
+     => Setting p s t a b -> p a b -> s -> t
+
+>>> traverse %~ even $ [1,2,3]
+[False,True,False]
+\end{minted}
+
+Modifies the target of a \textbf{Lens} or all of the targets of a
+\textbf{Setter} or \textbf{Traversal} with a user supplied function.
+
+This is an infix version of over.
+\end{box2}
+
+\begin{box1}
+\subsection *{Modifying with a constant value}
+\begin{minted}{haskell}
+(.~) :: ASetter s t a b -> b -> s -> t
+
+>>> [1,2,3] & element 0 .~ 3
+[3,2,3]
+>>> 0 & bitAt 8 .~ True
+256
+>>> [1,2,3] & traversed . filtered odd .~ 0
+[0,2,0]
+\end{minted}
+
+Replace the target of a \textbf{Lens} or all of the targets of a
+\textbf{Setter} or \textbf{Traversal} with a constant value.
+
+\end{box1}
+
+\begin{box2}
+\subsection *{Prisms and Isos}
+
+\textbf{Prisms} can be thought of as partial isomorphisms. You can turn a
+\textbf{Prism} around with \textbf{re}, and a \textbf{Iso} around with
+\textbf{from} (which is involutive).
+
+\begin{minted}{haskell}
+prism  :: (b -> t)
+       -> (s -> Either t a)
+       -> Prism s t a b
+prism' :: (a -> s)
+       -> (s -> Maybe a)
+       -> Prism' s a
+
+iso :: (s -> a) -> (b -> t) -> Iso s t a b
+from :: AnIso s t a b -> Iso b a t s
+
+>>> 5^.re _Left ^?! _Left
+5
+>>> _Left # 1
+Left 1
+>>> has _Left (Right 1)
+False
+
+>>> 'a' ^. from enum
+97
+>>> 97 ^. enum :: Char
+'a'
+
+>>> Map.fromList [("hello",1)] ^. at "hello"
+>>>                             . non 0
+1
+>>> Map.empty & at "hi"
+>>>           . non Map.empty
+>>>           . at "world" ?~ "!"
+fromList [("hi",fromList [("world","!")])]
+
+\end{minted}
+
+\end{box2}
+
+\end{multicols}
+
+\begin{box2}
+\subsection *{Some setting operators}
+\begin{tabular}{ l l l l l }
+\textbf{Operator}             &  \textbf{W/result}  &  \textbf{W/state}  &  \textbf{W/result}  &  \textbf{Action}\\
+\hline
+\verb!+~ !                    &  \verb!<+~ !        &  \verb!+= !        &  \verb!<+= !        &  Add to target(s)\\
+\verb!-~ !                    &  \verb!<-~ !        &  \verb!-= !        &  \verb!<-= !        &  Subtract from target(s)\\
+\verb!*~ !                    &  \verb!<*~ !        &  \verb!*= !        &  \verb!<*= !        &  Multiply target(s)\\
+\verb!//~!                    &  \verb!<//~!        &  \verb!//=!        &  \verb!<//=!        &  Divide target(s)\\
+\verb!^~ !                    &  \verb!<^~ !        &  \verb!^= !        &  \verb!<^= !        &  Raise target(s) to a non-negative Integral power\\
+\verb!^^~!                    &  \verb!<^^~!        &  \verb!^^=!        &  \verb!<^^=!        &  Raise target(s) to an Integral power\\
+\verb!**~!                    &  \verb!<**~!        &  \verb!**=!        &  \verb!<**=!        &  Raise target(s) to an arbitrary power\\
+\verb!||~!                    &  \verb!<||~!        &  \verb!||=!        &  \verb!<||=!        &  Logically or target(s)\\
+\verb!&&~!                    &  \verb!<&&~!        &  \verb!&&=!        &  \verb!<&&=!        &  Logically and target(s)\\
+\verb!<>~!                    &  \verb!<<>~!        &  \verb!<>=!        &  \verb!<<>=!        &  mappend to the target monoidal value(s)\\
+\end{tabular}
+\end{box2}
+
+
 \end{document}
