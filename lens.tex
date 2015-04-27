@@ -221,11 +221,17 @@ Replace the target of a \textbf{Lens} or all of the targets of a
 \begin{box2}
 \subsection *{Prisms and Isos}
 
-\textbf{Prisms} can be thought of as partial isomorphisms. You can turn a
-\textbf{Prism} around with \textbf{re}, and a \textbf{Iso} around with
-\textbf{from} (which is involutive).
+An \textbf{Iso} is a pair of inverse functions. You can invert an \textbf{Iso} with \textbf{from}.
+
+\textbf{Prism}s can be thought of as \textbf{Iso}s that can fail in one
+direction. You can invert a \textbf{Prism} with \textbf{re}.
 
 \begin{minted}{haskell}
+type Prism s t a b 
+  forall p f. (Choice p, Applicative f) =>
+              p a (f b) -> p s (f t)
+type Prism' s a = Prism s s a a
+
 prism  :: (b -> t)
        -> (s -> Either t a)
        -> Prism s t a b
@@ -233,29 +239,28 @@ prism' :: (a -> s)
        -> (s -> Maybe a)
        -> Prism' s a
 
-iso :: (s -> a) -> (b -> t) -> Iso s t a b
-from :: AnIso s t a b -> Iso b a t s
-
 >>> 5^.re _Left ^?! _Left
 5
 >>> _Left # 1
+
 Left 1
->>> has _Left (Right 1)
-False
+type Iso s t a b =
+  forall p f. (Profunctor p, Functor f) =>
+              p a (f b) -> p s (f t)
+type Iso' s a = Iso s s a a
+
+iso :: (s -> a) -> (b -> t) -> Iso s t a b
+from :: AnIso s t a b -> Iso b a t s
 
 >>> 'a' ^. from enum
 97
 >>> 97 ^. enum :: Char
 'a'
 
->>> Map.fromList [("hello",1)] ^. at "hello"
->>>                             . non 0
-1
 >>> Map.empty & at "hi"
 >>>           . non Map.empty
 >>>           . at "world" ?~ "!"
 fromList [("hi",fromList [("world","!")])]
-
 \end{minted}
 
 \end{box2}
