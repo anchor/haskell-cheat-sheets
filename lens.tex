@@ -44,9 +44,9 @@ $ (\ \hat{}\,?) \equiv flip\;preview $
 \begin{minted}{haskell}
 (^?) :: s -> Getting (First a) s a -> Maybe a
 
->>> Right 4 ^?_Left
+> Right 4 ^?_Left
 Nothing
->>> "world" ^? ix 3
+> "world" ^? ix 3
 Just `l'
 \end{minted}
 \end{box2}
@@ -64,9 +64,9 @@ This is the same operation as \textbf{view} with the arguments flipped.
 \begin{minted}{haskell}
 (^.) :: s -> Getting a s a -> a 
 
->>> (0, -5)^._2.to abs
+> (0, -5)^._2.to abs
 5
->>> ["a", "b", "c"] ^. traversed
+> ["a", "b", "c"] ^. traversed
 "abc"
 \end{minted}
 \end{box1}
@@ -81,9 +81,9 @@ points to a monoidal value.
 \begin{minted}{haskell}
 use :: MonadState s m => Getting a s a -> m a
 
->>> evalState (use _1) (1,2)
+> evalState (use _1) (1,2)
 1
->>> evalState (uses _1 length) ("hello","")
+> evalState (uses _1 length) ("hello","")
 5
 \end{minted}
 \end{box2}
@@ -117,9 +117,9 @@ $ toList\;xs \equiv xs\;\hat{}.. folded $
 \begin{minted}{haskell}
 (^..) :: s -> Getting (Endo [a]) s a -> [a] 
 
->>> [[1,2],[3]]^..traverse.traverse
+> [[1,2],[3]] ^.. traverse . traverse
 [1,2,3]
->>> (1,2)^..both
+> (1,2) ^.. both
 [1,2]
 \end{minted}
 \end{box2}
@@ -127,17 +127,17 @@ $ toList\;xs \equiv xs\;\hat{}.. folded $
 \begin{box1}
 \subsection *{Checking for matches}
 
-Check to see if this Fold or Traversal matches 1 or more entries. For the
+Check to see if this \textbf{Fold} or \textbf{Traversal} matches 1 or more entries. For the
 opposite, use \textbf{hasn't}.
 
 \begin{minted}{haskell}
 has :: Getting Any s a -> s -> Bool
 
->>> has (element 0) []
+> has (element 0) []
 False
->>> has _Right (Left 12)
+> has _Right (Left 12)
 False
->>> hasn't _Right (Left 12)
+> hasn't _Right (Left 12)
 True
 \end{minted}
 \end{box1}
@@ -149,12 +149,12 @@ For most operations, there is an indexed variant which will work as expected if
 the underlying target supports a notion of \textbf{Indexing}.
 
 \begin{minted}{haskell}
->>> ["ab", "c"]^@..itraversed<.>itraversed  
+> ["ab", "c"] ^@.. itraversed <.> itraversed  
 [((0,0),'a'),((0,1),'b'),((1,0),'c')]
->>> "hello" ^@..itraversed.indices even
+> "hello" ^@.. itraversed . indices even
 [(0,'h'),(2,'l'),(4,'o')]
 
->>> ifind (\i k -> i > k) [1,2,2,2]
+> ifind (\i k -> i > k) [1,2,2,2]
 Just (3,2)
 \end{minted}
 \end{box2}
@@ -180,7 +180,8 @@ type Setter s t a b =
   (a -> Identity b) -> s -> Identity t
 \end{minted}
 
-Every Traversal is a valid Setter, since Identity is Applicative.
+Every \textbf{Traversal} is a valid \textbf{Setter}, since \textbf{Identity} is
+\textbf{Applicative}.
 
 \end{box1}
 
@@ -190,14 +191,14 @@ Every Traversal is a valid Setter, since Identity is Applicative.
 (%~) :: Profunctor p
      => Setting p s t a b -> p a b -> s -> t
 
->>> traverse %~ even $ [1,2,3]
+> traverse %~ even $ [1,2,3]
 [False,True,False]
 \end{minted}
 
 Modifies the target of a \textbf{Lens} or all of the targets of a
 \textbf{Setter} or \textbf{Traversal} with a user supplied function.
 
-This is an infix version of over.
+This is an infix version of \textbf{over}.
 \end{box2}
 
 \begin{box1}
@@ -205,11 +206,11 @@ This is an infix version of over.
 \begin{minted}{haskell}
 (.~) :: ASetter s t a b -> b -> s -> t
 
->>> [1,2,3] & element 0 .~ 3
+> [1,2,3] & element 0 .~ 3
 [3,2,3]
->>> 0 & bitAt 8 .~ True
+> 0 & bitAt 8 .~ True
 256
->>> [1,2,3] & traversed . filtered odd .~ 0
+> [1,2,3] & traversed . filtered odd .~ 0
 [0,2,0]
 \end{minted}
 
@@ -239,11 +240,11 @@ prism' :: (a -> s)
        -> (s -> Maybe a)
        -> Prism' s a
 
->>> 5^.re _Left ^?! _Left
+> 5^.re _Left ^?! _Left
 5
->>> _Left # 1
-
+> _Left # 1
 Left 1
+
 type Iso s t a b =
   forall p f. (Profunctor p, Functor f) =>
               p a (f b) -> p s (f t)
@@ -252,14 +253,14 @@ type Iso' s a = Iso s s a a
 iso :: (s -> a) -> (b -> t) -> Iso s t a b
 from :: AnIso s t a b -> Iso b a t s
 
->>> 'a' ^. from enum
+> 'a' ^. from enum
 97
->>> 97 ^. enum :: Char
+> 97 ^. enum :: Char
 'a'
 
->>> Map.empty & at "hi"
->>>           . non Map.empty
->>>           . at "world" ?~ "!"
+> Map.empty & at "hi"
+>           . non Map.empty
+>           . at "world" ?~ "!"
 fromList [("hi",fromList [("world","!")])]
 \end{minted}
 
@@ -270,18 +271,18 @@ fromList [("hi",fromList [("world","!")])]
 \begin{box2}
 \subsection *{Some setting operators}
 \begin{tabular}{ l l l l l }
-\textbf{Operator}             &  \textbf{W/result}  &  \textbf{W/state}  &  \textbf{W/result}  &  \textbf{Action}\\
+\textbf{Operator}  &  \textbf{W/result}  &  \textbf{W/state}  &  \textbf{W/both}  &  \textbf{Action}\\
 \hline
-\verb!+~ !                    &  \verb!<+~ !        &  \verb!+= !        &  \verb!<+= !        &  Add to target(s)\\
-\verb!-~ !                    &  \verb!<-~ !        &  \verb!-= !        &  \verb!<-= !        &  Subtract from target(s)\\
-\verb!*~ !                    &  \verb!<*~ !        &  \verb!*= !        &  \verb!<*= !        &  Multiply target(s)\\
-\verb!//~!                    &  \verb!<//~!        &  \verb!//=!        &  \verb!<//=!        &  Divide target(s)\\
-\verb!^~ !                    &  \verb!<^~ !        &  \verb!^= !        &  \verb!<^= !        &  Raise target(s) to a non-negative Integral power\\
-\verb!^^~!                    &  \verb!<^^~!        &  \verb!^^=!        &  \verb!<^^=!        &  Raise target(s) to an Integral power\\
-\verb!**~!                    &  \verb!<**~!        &  \verb!**=!        &  \verb!<**=!        &  Raise target(s) to an arbitrary power\\
-\verb!||~!                    &  \verb!<||~!        &  \verb!||=!        &  \verb!<||=!        &  Logically or target(s)\\
-\verb!&&~!                    &  \verb!<&&~!        &  \verb!&&=!        &  \verb!<&&=!        &  Logically and target(s)\\
-\verb!<>~!                    &  \verb!<<>~!        &  \verb!<>=!        &  \verb!<<>=!        &  mappend to the target monoidal value(s)\\
+\verb!+~ !         &  \verb!<+~ !        &  \verb!+= !        &  \verb!<+= !      &  Add to target(s)\\
+\verb!-~ !         &  \verb!<-~ !        &  \verb!-= !        &  \verb!<-= !      &  Subtract from target(s)\\
+\verb!*~ !         &  \verb!<*~ !        &  \verb!*= !        &  \verb!<*= !      &  Multiply target(s)\\
+\verb!//~!         &  \verb!<//~!        &  \verb!//=!        &  \verb!<//=!      &  Divide target(s)\\
+\verb!^~ !         &  \verb!<^~ !        &  \verb!^= !        &  \verb!<^= !      &  Raise target(s) to a non-negative Integral power\\
+\verb!^^~!         &  \verb!<^^~!        &  \verb!^^=!        &  \verb!<^^=!      &  Raise target(s) to an Integral power\\
+\verb!**~!         &  \verb!<**~!        &  \verb!**=!        &  \verb!<**=!      &  Raise target(s) to an arbitrary power\\
+\verb!||~!         &  \verb!<||~!        &  \verb!||=!        &  \verb!<||=!      &  Logically or target(s)\\
+\verb!&&~!         &  \verb!<&&~!        &  \verb!&&=!        &  \verb!<&&=!      &  Logically and target(s)\\
+\verb!<>~!         &  \verb!<<>~!        &  \verb!<>=!        &  \verb!<<>=!      &  mappend to the target monoidal value(s)\\
 \end{tabular}
 \end{box2}
 
