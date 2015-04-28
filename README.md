@@ -24,10 +24,13 @@ Currently all A4 only, patches welcome:
 In this early stage, snippets of documentation that you are always looking up
 would be really helpful.
 
-Please feel free to open an issue with the documentation, and license of said
-docs (BSD-3, please).
+Please feel free to open a pull request with the documentation
+(attributed to its author), assuming it's released under a
+BSD-3-compatible license.
 
 ## License
 
-BSD-3, with attribution to the respective authors of whom we have stolen
-bits of their documentation.
+BSD-3, with attribution to the respective authors from whom we have
+stolen bits of documentation:
+
+ - Edward Kmett (Control.Lens)
