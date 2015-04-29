@@ -44,7 +44,7 @@ performance from a strict left fold (\textbf{foldl'}).
 \end{multicols}
 
 \begin{minted}{haskell}
-foldl :: Foldable t => (a -> b -> a) -> a -> t b -> a	
+foldl :: Foldable t => (b -> a -> b) -> b -> t a -> b	
 foldr :: Foldable t => (a -> b -> b) -> b -> t a -> b	
 
 toList :: Foldable t => t a -> [a]	
