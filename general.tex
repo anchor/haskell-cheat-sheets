@@ -12,49 +12,55 @@
 \CenterWallPaper{0.3}{common/anchor-logo.png}
 
 
-{\huge \bfseries General libraries \\[0.2cm]}
+{\huge \bfseries General libraries (base $\geq$ 4.8)\\[0.2cm]}
 
 \HRule%
 
-\begin{multicols}{2}
 
 \begin{box1}
-\subsection *{Folding}
+\begin{multicols}{2}
+{\Large \bfseries Right associative (foldr)}
 
-\includegraphics[width=\linewidth/2,keepaspectratio=true]{images/foldl.png}
-\includegraphics[width=\linewidth/2,keepaspectratio=true]{images/foldr.png}
+\columnbreak
 
-If you operating over potentially infinite structures whilst building another
-structure, then you probably want a right associative fold (\textbf{foldr}).
+{\Large \bfseries Left associative (foldl)}
+\end{multicols}
+\begin{multicols}{4}
+If you operating over potentially infinite structures and/or building another
+structure, then you probably want \textbf{foldr}.
+\columnbreak
 
-Otherwise, if you are reducing to a single value, then you probably want a
-strict left fold (\textbf{foldl'}).
+\includegraphics[width=\linewidth,keepaspectratio=true]{images/foldl.png}
+
+\columnbreak
+
+If you are reducing to a single value, then you will probably get more
+performance from a strict left fold (\textbf{foldl'}).
+
+\columnbreak
+
+\includegraphics[width=\linewidth,keepaspectratio=true]{images/foldr.png}
+
+\end{multicols}
 
 \begin{minted}{haskell}
-foldl :: Foldable t
-      => (a -> b -> a) -> a -> t b -> a	
-foldr :: Foldable t
-      => (a -> b -> b) -> b -> t a -> b	
+foldl :: Foldable t => (a -> b -> a) -> a -> t b -> a	
+foldr :: Foldable t => (a -> b -> b) -> b -> t a -> b	
 
 toList :: Foldable t => t a -> [a]	
 
-and, or       :: Foldable t
-              => t Bool -> Bool	
-any, all      :: Foldable t
-              => (a -> Bool) -> t a -> Bool	
-sum, product  :: (Foldable t, Num a)
-              => t a -> a	
-minimum, maximum     :: (Foldable t, Ord a)
-                     => t a -> a	
-minimumBy, maximumBy :: Foldable t
-                     => (a -> a -> Ordering)
-                     -> t a -> a	
+and, or              :: Foldable t => t Bool -> Bool	
+any, all             :: Foldable t => (a -> Bool) -> t a -> Bool	
+sum, product         :: (Foldable t, Num a) => t a -> a	
+minimum, maximum     :: (Foldable t, Ord a) => t a -> a	
+minimumBy, maximumBy :: Foldable t => (a -> a -> Ordering) -> t a -> a
 
-elem :: (Foldable t, Eq a)
-     => a -> t a -> Bool	
-find :: Foldable t
-     => (a -> Bool) -> t a -> Maybe a
+elem :: (Foldable t, Eq a) => a -> t a -> Bool	
+find :: Foldable t => (a -> Bool) -> t a -> Maybe a
+\end{minted}
 
+\begin{multicols}{2}
+\begin{minted}{haskell}
 > foldl' (flip (:)) [0] [1,2,3]
 [3,2,1,0]
 
@@ -63,7 +69,73 @@ find :: Foldable t
 
 > take 5 $ foldr (:) [] [1..]
 [1,2,3,4,5]
+\end{minted}
 
+\columnbreak
+
+\begin{minted}{haskell}
+> all even [1,2,3]
+False
+
+> any even [1,2,3,undefined]
+True
+
+> find (> 42) [1..]
+Just 43
+\end{minted}
+\end{multicols}
+\end{box1}
+
+\begin{box2}
+\subsection *{Applicative Traversals/Folds}
+
+\begin{minted}{haskell}
+traverse :: (Traversable t, Applicative f) => (a -> f b) -> t a -> f (t b)
+for      :: (Traversable t, Applicative f) => t a -> (a -> f b) -> f (t b)
+sequenceA :: Applicative f => t (f a) -> f (t a)
+
+> for [1000000, 2000000] $ \t -> threadDelay t >> getCurrentTime
+[2015-04-29 05:24:30.040399 UTC,2015-04-29 05:24:32.042665 UTC]
+\end{minted}
+\end{box2}
+
+\begin{multicols}{2}
+
+\begin{box1}
+\subsection *{Functor}
+
+\begin{minted}{haskell}
+class Functor (f :: * -> *) where
+  fmap :: (a -> b) -> f a -> f b
+  (<$) :: a -> f b -> f a
+\end{minted}
+\end{box1}
+
+\begin{box2}
+\subsection *{Control.Applicative}
+\begin{minted}{haskell}
+class Functor f => Applicative f where
+  pure :: a -> f a
+  (<*>) :: f (a -> b) -> f a -> f b
+  (*>) :: f a -> f b -> f b
+  (<*) :: f a -> f b -> f a
+\end{minted}
+\end{box2}
+
+\begin{box1}
+\subsection *{Control.Monad}
+\begin{minted}{haskell}
+class Applicative m => Monad m where
+  (>>=) :: m a -> (a -> m b) -> m b
+  (>>) :: m a -> m b -> m b
+  return :: a -> m a
+  fail :: String -> m a
+
+(>=>) :: Monad m
+      => (a -> m b) -> (b -> m c) -> a -> m c
+
+join  :: Monad m => m (m a) -> m a
+ap    :: Monad m => m (a -> b) -> m a -> m b
 
 \end{minted}
 \end{box1}
