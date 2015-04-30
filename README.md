@@ -11,7 +11,7 @@ friends will learn some nice tricks, too!
 Currently all A4 only, patches welcome:
 
 * [Control.Lens](lens.pdf)
-* [*WIP* General (Prelude, Typeclasses, Lists)](general.pdf)
+* [*WIP* Base (Prelude, Typeclasses, Lists)](base.pdf)
 
 ## Currently planned cheat sheets:
 

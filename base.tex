@@ -12,30 +12,32 @@
 \CenterWallPaper{0.3}{common/anchor-logo.png}
 
 
-{\huge \bfseries General libraries (base $\geq$ 4.8)\\[0.2cm]}
+{\huge \bfseries Base -- Folds and Typeclasses \\[0.2cm]}
 
 \HRule%
 
-
 \begin{box1}
 \begin{multicols}{2}
-{\Large \bfseries Right associative (foldr)}
-
-\columnbreak
 
 {\Large \bfseries Left associative (foldl)}
+
+\columnbreak
+
+{\Large \bfseries Right associative (foldr)}
+
 \end{multicols}
 \begin{multicols}{4}
-If you operating over potentially infinite structures and/or building another
-structure, then you probably want \textbf{foldr}.
 \columnbreak
+
+If you are \textbf{reducing to a single value,} then you may get more
+performance from a strict left \textbf{foldl'}.
 
 \includegraphics[width=\linewidth,keepaspectratio=true]{images/foldl.png}
 
 \columnbreak
 
-If you are reducing to a single value, then you will probably get more
-performance from a strict left fold (\textbf{foldl'}).
+If what you are reducing is \textbf{potentially infinite}, or you are
+\textbf{building a structure}, use \textbf{foldr}.
 
 \columnbreak
 
@@ -55,8 +57,8 @@ sum, product         :: (Foldable t, Num a) => t a -> a
 minimum, maximum     :: (Foldable t, Ord a) => t a -> a	
 minimumBy, maximumBy :: Foldable t => (a -> a -> Ordering) -> t a -> a
 
-elem :: (Foldable t, Eq a) => a -> t a -> Bool	
-find :: Foldable t => (a -> Bool) -> t a -> Maybe a
+elem, notElem :: (Foldable t, Eq a) => a -> t a -> Bool	
+find          :: Foldable t => (a -> Bool) -> t a -> Maybe a
 \end{minted}
 
 \begin{multicols}{2}
@@ -136,9 +138,118 @@ class Applicative m => Monad m where
 
 join  :: Monad m => m (m a) -> m a
 ap    :: Monad m => m (a -> b) -> m a -> m b
+\end{minted}
+
+\end{box1}
+
+\end{multicols}
+\newpage
+
+{\huge \bfseries Base -- Lists and ??? \\[0.2cm]}
+
+\HRule%
+
+\begin{multicols}{2}
+\begin{box1}
+\subsection *{Data.List}
+\begin{minted}{haskell}
+intersperse :: a -> [a] -> [a]
+> intersperse ',' "abcde" == "a,b,c,d,e"
+
+intercalate :: a -> [a] -> [a]
+> intercalate " love " ["ponies", "ducks"]
+"ponies love ducks"
+
+subsequences, permutations :: [a] -> [[a]]
+> subsequences "abc"
+["","a","b","ab","c","ac","bc","abc"]
+> permutations "abc"
+["abc","bac","cba","bca","cab","acb"]
+
+scanl :: (b -> a -> b) -> b -> [a] -> [b]
+> scanl f z [x1, x2, ...]
+[z, z `f` x1, (z `f` x1) `f` x2, ...]
+> take 8 $ fix (\fib -> scanl (+) 1 (0:fib))
+[1,1,2,3,5,8,13,21]
+
+iterate :: (a -> a) -> a -> [a]
+> iterate f x
+[x, f x, f (f x), ...]
+> take 10 $ iterate (*2) 1
+[1,2,4,8,16,32,64,128,256,512]
+
+replicate :: Int -> a -> [a]
+repeat :: a -> [a]
+cycle :: [a] -> [a]
+
+ :: Int -> [a] -> ([a], [a])
+> splitAt n xs
+(take n xs, drop n xs)
+
+takeWhile, dropWhile
+  :: (a -> Bool) -> [a] -> [a]
+> takeWhile (< 3) [1,2,3,4,1,2,3,4]
+[1,2]
+
+isPrefixof, isSuffixOf, isInfixOf
+  :: Eq a => [a] -> [a] -> Bool
+
+lines, words :: String -> [String]
+words, lines :: [String] -> String
+
+nub :: Eq a => [a] -> [a]
+> nub [1,2,2,3,2]
+[1,2,3]
+
+delete :: Eq a => a -> [a] -> [a]
+> delete 'a' "banana"
+"bnana"
+
+(\\), union, intersect
+  :: Eq a => [a] -> [a] -> [a]
+> (xs ++ ys) \\ xs -- difference
+ys
+\end{minted}
+\end{box1}
+
+\begin{box2}
+\subsection *{Commonly re-defined}
+\begin{minted}{haskell}
+strip :: String -> String
+strip =
+  join fmap (reverse . dropWhile isSpace)
+
+> trim "  a "
+> "a"
+
+pairs :: [a] -> [(a, a)]
+pairs = zip <*> tail
+
+> pairs [1]
+[]
+> pairs [1,2,3]
+[(1,2),(2,3)]
+\end{minted}
+\end{box2}
+
+\begin{box1}
+\subsection *{Data.Function}
+\begin{minted}{haskell}
+fix :: (a -> a) -> a
+> fix $ \f n ->
+>   if n < 0 then [] else n : f (n - 1)) 5
+[5,4,3,2,1,0]
+
+on :: (b -> b -> c)
+   -> (a -> b) -> a -> a -> c
+> (*) `on` f 
+\x y -> f x * f y.
+> sortBy (compare `on` length) ["bb", "a"]
+["a","bb"]
 
 \end{minted}
 \end{box1}
+
 
 \end{multicols}
 \end{document}
