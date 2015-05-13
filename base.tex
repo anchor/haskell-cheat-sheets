@@ -145,7 +145,7 @@ ap    :: Monad m => m (a -> b) -> m a -> m b
 \end{multicols}
 \newpage
 
-{\huge \bfseries Base -- Lists and ??? \\[0.2cm]}
+{\huge \bfseries Base -- Lists and misc \\[0.2cm]}
 
 \HRule%
 
@@ -219,8 +219,8 @@ strip :: String -> String
 strip =
   join fmap (reverse . dropWhile isSpace)
 
-> trim "  a "
-> "a"
+> strip "  a "
+"a"
 
 pairs :: [a] -> [(a, a)]
 pairs = zip <*> tail
@@ -250,6 +250,37 @@ on :: (b -> b -> c)
 \end{minted}
 \end{box1}
 
+
+\begin{box2}
+\subsection *{Debug.Trace}
+
+The usual output stream is \textbf{stderr}.
+
+\begin{minted}{haskell}
+trace       :: String -> a -> a
+traceShow   :: Show a => a -> b -> b
+traceShowId :: Show a => a -> a
+traceStack  :: String -> a -> a
+traceIO     :: String -> IO ()
+traceM      :: Monad m => String -> m ()
+traceShowM  :: (Show a, Monad m) => a -> m ()
+
+> trace ("call f with x = " ++ show x) (f x)
+> g x y = traceShow (x, y) (x + y)
+\end{minted}
+\end{box2}
+
+\begin{box1}
+\subsection *{Control.Arrow}
+\begin{minted}{haskell}
+class Category a => Arrow a where
+  arr :: (b -> c) -> a b c
+  first :: a b c -> a (b,d) (c,d)
+  second :: a b c -> a (d,b) (d,c)
+  (***) :: a b c -> a b' c' -> a (b,b') (c,c')
+  (&&&) :: a b c -> a b c' -> a b (c,c')
+\end{minted}
+\end{box1}
 
 \end{multicols}
 \end{document}
