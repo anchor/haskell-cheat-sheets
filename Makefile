@@ -9,3 +9,6 @@ clean:
 
 %.pdf: %.tex common/*.tex
 	pdflatex -shell-escape $< -o $@
+
+all.pdf: $(PDFS)
+	pdfunite $(PDFS) all.pdf

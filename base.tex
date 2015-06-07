@@ -194,8 +194,8 @@ takeWhile, dropWhile
 isPrefixof, isSuffixOf, isInfixOf
   :: Eq a => [a] -> [a] -> Bool
 
-lines, words :: String -> [String]
-words, lines :: [String] -> String
+lines, words     :: String -> [String]
+unwords, unlines :: [String] -> String
 
 nub :: Eq a => [a] -> [a]
 > nub [1,2,2,3,2]
